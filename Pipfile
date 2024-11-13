@@ -7,6 +7,9 @@ name = "pypi"
 django = "*"
 django-rest-framework = "*"
 djoser = "*"
+django-filter = "*"
+djangorestframework-xml = "*"
+bleach = "*"
 
 [dev-packages]
 
