@@ -10,6 +10,7 @@ djoser = "*"
 django-filter = "*"
 djangorestframework-xml = "*"
 bleach = "*"
+django-debug-toolbar = "*"
 
 [dev-packages]
 
