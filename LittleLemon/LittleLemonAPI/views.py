@@ -9,14 +9,14 @@ from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
 # Create your views here.
 class CategoryView(generics.ListCreateAPIView):
     queryset = Category.objects.all()
-    serializers_class = CategorySerializer
+    serializer_class = CategorySerializer
     
     def get_permissions(self):
-        permisison_classes = []
+        permission_classes = []
         if self.request.method != 'GET':
             permission_classes = [IsAuthenticated]
             
-        return [permission() for permission in permisison_classes]
+        return [permission() for permission in permission_classes]
     
     throttle_classes = [AnonRateThrottle, UserRateThrottle]    
     
