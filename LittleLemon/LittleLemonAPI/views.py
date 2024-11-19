@@ -1,8 +1,8 @@
 from django.shortcuts import render
 from rest_framework import generics, viewsets, status
 from django.contrib.auth.models import User, Group
-from .models import Category, MenuItem, Cart, Order, OrderItem
-from .serializers import CategorySerializer
+from .models import Category, MenuItems, Cart, Order, OrderItem
+from .serializers import CategorySerializer, MenuItemsSerializer
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
@@ -20,3 +20,12 @@ class CategoryView(generics.ListCreateAPIView):
     
     throttle_classes = [AnonRateThrottle, UserRateThrottle]    
     
+class MenuItemsView(generics.ListCreateAPIView):
+    queryset = MenuItems.objects.select_related('category').all()
+    serializer_class = MenuItemsSerializer
+    ordering_fields = ['price']
+    search_fields = ['title', 'category_title']
+    
+class SingleMenuItemView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = MenuItems.objects.select_related('category').all()
+    serializer_class = MenuItemsSerializer
