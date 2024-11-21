@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import Category, MenuItems, Cart, Order, OrderItem
 import bleach
+from django.contrib.auth.models import User
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -19,6 +20,11 @@ class MenuItemsSerializer(serializers.ModelSerializer):
         fields = ['id', 'user', 'menuitems', 'quantity', 'unit_price', 'price', 'menuitem_id']
         
 class CartSerializers(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(
+        queryset = User.objects.all(),
+        default = serializers.CurrentUserDefault()
+    )
+    
     menuitems = MenuItemsSerializer(read_only=True)
     menuitem_id = serializers.IntegerField(write_only=True)
     
