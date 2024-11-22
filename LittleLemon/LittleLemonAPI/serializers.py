@@ -42,3 +42,6 @@ class OrderSerializers(serializers.ModelSerializer):
         queryset = User.objects.all(),
         default = serializers.CurrentUserDefault()
     )
+    class Meta:
+        model = Order
+        fields = ['id', 'user', 'delivery_crew', 'status', 'total', 'date']
