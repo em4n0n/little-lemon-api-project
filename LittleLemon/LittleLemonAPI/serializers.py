@@ -31,3 +31,14 @@ class CartSerializers(serializers.ModelSerializer):
     class Meta:
         model = Cart
         fields = ['id', 'user', 'menuitems', 'quantity', 'unit_price', 'price', 'menuitem_id']
+        
+class OrderSerializers(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(
+        queryset = User.objects.all(),
+        default = serializers.CurrentUserDefault()
+    )
+    
+    delivery_crew = serializers.PrimaryKeyRelatedField(
+        queryset = User.objects.all(),
+        default = serializers.CurrentUserDefault()
+    )
