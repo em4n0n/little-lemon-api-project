@@ -25,7 +25,14 @@ class MenuItemsView(generics.ListCreateAPIView):
     serializer_class = MenuItemsSerializer
     ordering_fields = ['price']
     search_fields = ['title', 'category_title']
-    
+    ordering_fields = ['price']
+
+    def get_permissions(self):
+        permission_classes = []
+        if self.request.method != 'GET':
+            permission_classes = [IsAuthenticated]
+            
+        return [permission() for permission in permission_classes]    
 class SingleMenuItemView(generics.RetrieveUpdateDestroyAPIView):
     queryset = MenuItems.objects.select_related('category').all()
     serializer_class = MenuItemsSerializer
