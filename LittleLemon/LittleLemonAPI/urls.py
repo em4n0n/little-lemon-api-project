@@ -11,6 +11,8 @@ urlpatterns = [
     path('groups/manager/users', permissions.manager_view),
     path('groups/delivery-crew/users', views.DeliveryCrewView.as_view()),
     path('groups/delivery=crew/users/<int:pk>', views.DeliveryCrewView.as_view()),
-    path('cart/menu-items', views.CartView.as_view())
+    path('cart/menu-items', views.CartView.as_view()),
+    path('orders', views.OrderView.as_view()),
+    path('orders/<int:pk>', views.SingleOrderView.as_view()),
 ]
 
