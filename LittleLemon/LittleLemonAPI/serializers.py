@@ -36,6 +36,11 @@ class CartSerializers(serializers.ModelSerializer):
             'price': {'read_only': True}
         }
         
+class OrderItemsSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = OrderItem
+        fields = ['id', 'order', 'menuitem', 'quantity', 'price']
+    
 class OrderSerializers(serializers.ModelSerializer):
     user = serializers.PrimaryKeyRelatedField(
         queryset = User.objects.all(),
