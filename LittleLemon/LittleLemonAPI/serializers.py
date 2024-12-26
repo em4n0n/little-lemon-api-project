@@ -42,15 +42,9 @@ class OrderItemsSerializers(serializers.ModelSerializer):
         fields = ['id', 'order', 'menuitem', 'quantity', 'price']
     
 class OrderSerializers(serializers.ModelSerializer):
-    user = serializers.PrimaryKeyRelatedField(
-        queryset = User.objects.all(),
-        default = serializers.CurrentUserDefault()
-    )
-    
-    delivery_crew = serializers.PrimaryKeyRelatedField(
-        queryset = User.objects.all(),
-        default = serializers.CurrentUserDefault()
-    )
-    class Meta:
-        model = Order
-        fields = ['id', 'user', 'delivery_crew', 'status', 'total', 'date']
+        orderitem = OrderItemsSerializers(many=True, read_only=True, source='order')
+        
+        class Meta:
+            model = Order
+            fields = ['id', 'user', 'delivery_crew', 'status', 'total', 'date', 'orderitem']
+
