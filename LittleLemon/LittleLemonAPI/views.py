@@ -38,3 +38,12 @@ class SingleMenuItemView(generics.RetrieveUpdateDestroyAPIView):
     queryset = MenuItems.objects.select_related('category').all()
     serializer_class = MenuItemsSerializer
     
+    def get_permissions(self):
+        permission_classes = []
+        if self.request.method != 'GET':
+            permission_classes = [IsAuthenticated]
+            
+        return [permission() for permission in permission_classes]
+    
+    throttle_classes = [AnonRateThrottle, UserRateThrottle]
+    
