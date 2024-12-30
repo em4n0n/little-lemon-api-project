@@ -53,7 +53,8 @@ class ManagerUserView(generics.ListCreateAPIView):
     serializer_class = UserSerializers
     
     def get_queryset(self):
-        return User.objects.filter(groups__name='Manager')
+        manager_group = Group.objects.get(name='Manager')
+        return User.objects.all().filter(groups=manager_group)
     
     def post(self, request, *args, **kwargs):
         data = request.data
