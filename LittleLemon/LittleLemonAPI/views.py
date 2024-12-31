@@ -2,7 +2,7 @@ from django.shortcuts import render, get_objects_or_404
 from rest_framework import generics, viewsets, status
 from django.contrib.auth.models import User, Group
 from .models import Category, MenuItems, Cart, Order, OrderItem
-from .serializers import CategorySerializer, MenuItemsSerializer, UserSerializers
+from .serializers import CategorySerializer, MenuItemsSerializer, UserSerializers, CartSerializers
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from .permissions import IsManager
 from rest_framework.response import Response
@@ -125,3 +125,17 @@ class SingleDeliveryCrewView(generics.RetrieveDestroyAPIView):
                 delivery_crew_group.user_set.remove(user)
                 return Response({'status': 'User removed from Delivery Crew group'}, status=status.HTTP_204_NO_CONTENT)
         return Response({'status': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+class CartView(generics.ListCreateAPIView, generics.DestroyAPIView):
+    serializer_class = CartSerializers
+    permission_classes = [IsAuthenticated]
+    throttle_classes = [AnonRateThrottle, UserRateThrottle]
+
+    def get_queryset(self):
+        # Filter the cart items for the current authenticated user
+        return Cart.objects.filter(user=self.request.user)
+
+    def delete(self, request, *args, **kwargs):
+        # Delete all cart items for the current user
+        self.get_queryset().delete()
+        return Response({'Message': 'Your items have been deleted.'}, status=status.HTTP_204_NO_CONTENT)
