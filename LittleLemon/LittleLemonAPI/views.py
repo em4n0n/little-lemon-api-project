@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_objects_or_404
 from rest_framework import generics, viewsets, status
 from django.contrib.auth.models import User, Group
 from .models import Category, MenuItems, Cart, Order, OrderItem
@@ -57,14 +57,34 @@ class ManagerUserView(generics.ListCreateAPIView):
         return User.objects.all().filter(groups=manager_group)
     
     def post(self, request, *args, **kwargs):
-        data = request.data
-        data['groups'] = [Group.objects.get(name='Manager').id]
-        serializer = UserSerializers(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        username = request.data.get['username']
+        if username:
+            user = get_objects_or_404(User, username=username)
+            manager_group = Group.objects.get(name='Manager')
+            manager_group.user_set.add(user)
+            return Response({'status': 'User added to Manager group'}, status=status.HTTP_201_CREATED)
+        return Response({'status': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+            
     
     permission_classes = [IsManager]
     throttle_classes = [AnonRateThrottle, UserRateThrottle]
     
+class SingleMangerUserView(generics.RetrieveDestroyAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializers
+    
+    def get_queryset(self):
+        manager_group = Group.objects.get(name='Manager')
+        return User.objects.all().filter(groups=manager_group)
+    
+    def delete(self, request, *args, **kwargs):
+        username = request.data.get['username']
+        if username:
+            user = get_objects_or_404(User, username=username)
+            manager_group = Group.objects.get(name='Manager')
+            manager_group.user_set.remove(user)
+            return Response({'status': 'User removed from Manager group'}, status=status.HTTP_204_NO_CONTENT)
+        return Response({'status': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+    permission_classes = [IsManager]
+    throttle_classes = [AnonRateThrottle, UserRateThrottle]
