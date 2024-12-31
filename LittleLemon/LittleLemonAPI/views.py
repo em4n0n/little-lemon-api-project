@@ -88,3 +88,40 @@ class SingleMangerUserView(generics.RetrieveDestroyAPIView):
     
     permission_classes = [IsManager]
     throttle_classes = [AnonRateThrottle, UserRateThrottle]
+    
+class DeliveryCrewView(generics.ListCreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializers
+    
+    def get_queryset(self):
+        delivery_crew_group = Group.objects.get(name='Delivery Crew')
+        return User.objects.all().filter(groups=delivery_crew_group)
+    
+    def post(self, request, *args, **kwargs):
+        username = request.data.get['username']
+        if username:
+            user = get_objects_or_404(User, username=username)
+            delivery_crew_group = Group.objects.get(name='Delivery Crew')
+            delivery_crew_group.user_set.add(user)
+            return Response({'status': 'User added to Delivery Crew group'}, status=status.HTTP_201_CREATED)
+        return Response({'status': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+            
+    
+    permission_classes = [IsManager]
+    throttle_classes = [AnonRateThrottle, UserRateThrottle]
+    
+class SingleDeliveryCrewView(generics.RetrieveDestroyAPIView):
+    serializer_class = UserSerializers
+    
+    def get_queryset(self):
+        return User.objects.filter(groups__name="Delivery Crew")
+    
+    def delete(self, request, *args, **kwargs):
+        username = request.data.get['username']
+        if username:
+            user = User.objects.filter(username=username).first()
+            if user:
+                delivery_crew_group = Group.objects.get(name="Delivery Crew")
+                delivery_crew_group.user_set.remove(user)
+                return Response({'status': 'User removed from Delivery Crew group'}, status=status.HTTP_204_NO_CONTENT)
+        return Response({'status': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
