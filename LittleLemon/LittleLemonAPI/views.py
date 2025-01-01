@@ -2,7 +2,7 @@ from django.shortcuts import render, get_objects_or_404
 from rest_framework import generics, viewsets, status
 from django.contrib.auth.models import User, Group
 from .models import Category, MenuItems, Cart, Order, OrderItem
-from .serializers import CategorySerializer, MenuItemsSerializer, UserSerializers, CartSerializers
+from .serializers import CategorySerializer, MenuItemsSerializer, UserSerializers, CartSerializers, OrderSerializers
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from .permissions import IsManager
 from rest_framework.response import Response
@@ -138,4 +138,43 @@ class CartView(generics.ListCreateAPIView, generics.DestroyAPIView):
     def delete(self, request, *args, **kwargs):
         # Delete all cart items for the current user
         self.get_queryset().delete()
-        return Response({'Message': 'Your items have been deleted.'}, status=status.HTTP_204_NO_CONTENT)
+        return Response({'Message': 'Items have been deleted.'}, status=status.HTTP_204_NO_CONTENT)
+
+class OrderView(generics.ListCreateAPIView):
+    serializer_class = OrderSerializers
+    permission_classes = [IsAuthenticated]
+    throttle_classes = [AnonRateThrottle, UserRateThrottle]
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_superuser:
+            return Order.objects.all()
+        if user.groups.filter(name='delivery crew').exists():
+            return Order.objects.filter(delivery_crew=user)
+        return Order.objects.filter(user=user)
+
+    def post(self, request, *args, **kwargs):
+        cart_items = Cart.objects.filter(user=self.request.user)
+        if cart_items.exists():
+            total = sum(item.price for item in cart_items)
+            order = Order.objects.create(user=self.request.user, total=total)
+            order_items = [
+                OrderItem(order=order, item=item.item, quantity=item.quantity)
+                for item in cart_items
+            ]
+            OrderItem.objects.bulk_create(order_items)
+            cart_items.delete()
+            return Response({'Message': 'Order has been placed.', 'Total': total}, status=status.HTTP_201_CREATED)
+        return Response({'Message': 'Cart is empty.'}, status=status.HTTP_400_BAD_REQUEST)
+    
+class SingleOrderView(generics.RetrieveUpdateAPIView):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializers
+    permission_classes = [IsAuthenticated]
+    throttle_classes = [AnonRateThrottle, UserRateThrottle]
+
+    def update(self, request, *args, **kwargs):
+        # Restrict update if the user does not belong to any group
+        if not self.request.user.groups.exists():
+            return Response({'detail': 'Not authorized to update this order.'}, status=status.HTTP_403_FORBIDDEN)
+        return super().update(request, *args, **kwargs)
