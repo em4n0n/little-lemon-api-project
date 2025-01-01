@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_objects_or_404
+from django.shortcuts import render, get_object_or_404
 from rest_framework import generics, viewsets, status
 from django.contrib.auth.models import User, Group
 from .models import Category, MenuItems, Cart, Order, OrderItem
@@ -59,7 +59,7 @@ class ManagerUserView(generics.ListCreateAPIView):
     def post(self, request, *args, **kwargs):
         username = request.data.get['username']
         if username:
-            user = get_objects_or_404(User, username=username)
+            user = get_object_or_404(User, username=username)
             manager_group = Group.objects.get(name='Manager')
             manager_group.user_set.add(user)
             return Response({'status': 'User added to Manager group'}, status=status.HTTP_201_CREATED)
@@ -80,7 +80,7 @@ class SingleMangerUserView(generics.RetrieveDestroyAPIView):
     def delete(self, request, *args, **kwargs):
         username = request.data.get['username']
         if username:
-            user = get_objects_or_404(User, username=username)
+            user = get_object_or_404(User, username=username)
             manager_group = Group.objects.get(name='Manager')
             manager_group.user_set.remove(user)
             return Response({'status': 'User removed from Manager group'}, status=status.HTTP_204_NO_CONTENT)
@@ -100,7 +100,7 @@ class DeliveryCrewView(generics.ListCreateAPIView):
     def post(self, request, *args, **kwargs):
         username = request.data.get['username']
         if username:
-            user = get_objects_or_404(User, username=username)
+            user = get_object_or_404(User, username=username)
             delivery_crew_group = Group.objects.get(name='Delivery Crew')
             delivery_crew_group.user_set.add(user)
             return Response({'status': 'User added to Delivery Crew group'}, status=status.HTTP_201_CREATED)
