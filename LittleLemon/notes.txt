@@ -1,0 +1,11 @@
+Admin Username: admin
+Password: useradmin123!@#
+
+Manager Username: janedoe
+Password: userjanedoe123!@#
+
+Delivery Crew Username: joedoe
+Password: userjoedoe123!@#
+
+Delivery Crew Username: johndoe
+Password: userjohndoe123!@#
