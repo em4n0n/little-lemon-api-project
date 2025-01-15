@@ -1,4 +1,4 @@
-Admin Username: admin
+Superuser Username: admin
 Password: useradmin123!@#
 
 Manager Username: janedoe
