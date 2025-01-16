@@ -9,3 +9,6 @@ Password: userjoedoe123!@#
 
 Delivery Crew Username: johndoe
 Password: userjohndoe123!@#
+
+Customer Username: customer
+Password: customer123!@#
