@@ -17,7 +17,7 @@ class MenuItemsSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = MenuItems
-        fields = ['id', 'user', 'menuitems', 'quantity', 'unit_price', 'price', 'menuitem_id']
+        fields = ['id', 'title', 'price', 'featured', 'category', 'category_id']
         
 class CartSerializers(serializers.ModelSerializer):
     user = serializers.PrimaryKeyRelatedField(
@@ -31,7 +31,7 @@ class CartSerializers(serializers.ModelSerializer):
     
     class Meta:
         model = Cart
-        fields = ['id', 'user', 'menuitems', 'quantity', 'unit_price', 'price']
+        fields = ['id', 'user', 'menuitem', 'quantity', 'unit_price', 'price']
         extra_kwargs = {
             'price': {'read_only': True}
         }

@@ -4,6 +4,7 @@ from django.contrib.auth.models import User, Group
 from .models import Category, MenuItems, Cart, Order, OrderItem
 from .serializers import CategorySerializer, MenuItemsSerializer, UserSerializers, CartSerializers, OrderSerializers
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.filters import OrderingFilter, SearchFilter
 from .permissions import IsManager
 from rest_framework.response import Response
 from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
@@ -25,7 +26,7 @@ class MenuItemsView(generics.ListCreateAPIView):
     queryset = MenuItems.objects.select_related('category').all()
     serializer_class = MenuItemsSerializer
     ordering_fields = ['price']
-    search_fields = ['title', 'category_title']
+    search_fields = ['title', 'category__title']
 
     def get_permissions(self):
         permission_classes = []
@@ -36,7 +37,7 @@ class MenuItemsView(generics.ListCreateAPIView):
     
     throttle_classes = [AnonRateThrottle, UserRateThrottle]
 class SingleMenuItemView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = MenuItems.objects.select_related('category').all()
+    queryset = MenuItems.objects.all()
     serializer_class = MenuItemsSerializer
     
     def get_permissions(self):
@@ -53,17 +54,17 @@ class ManagerUserView(generics.ListCreateAPIView):
     serializer_class = UserSerializers
     
     def get_queryset(self):
-        manager_group = Group.objects.get(name='Manager')
+        manager_group = Group.objects.get(name='manager')
         return User.objects.all().filter(groups=manager_group)
     
     def post(self, request, *args, **kwargs):
-        username = request.data.get['username']
+        username = request.data['username']
         if username:
             user = get_object_or_404(User, username=username)
-            manager_group = Group.objects.get(name='Manager')
+            manager_group = Group.objects.get(name='manager')
             manager_group.user_set.add(user)
-            return Response({'status': 'User added to Manager group'}, status=status.HTTP_201_CREATED)
-        return Response({'status': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'Message': 'User added to Manager group.'}, status.HTTP_201_CREATED)
+        return Response({'status': 'User not found.'}, status.HTTP_400_BAD_REQUEST)
             
     
     permission_classes = [IsManager]

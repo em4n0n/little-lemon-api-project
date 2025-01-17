@@ -40,8 +40,8 @@ INSTALLED_APPS = [
     'LittleLemonAPI',
     'rest_framework',
     'debug_toolbar',
-    'djoser',
     'rest_framework.authtoken',
+    'djoser',
 ]
 
 MIDDLEWARE = [
